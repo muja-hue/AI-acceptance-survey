@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Google Form – แบบสอบถามวิจัย AI โรงเรียนอิสลาม</title>
+<style>
+  :root {
+    --google-blue: #1a73e8;
+    --google-blue-light: #e8f0fe;
+    --purple: #673ab7;
+    --purple-light: #ede7f6;
+    --teal: #00897b;
+    --teal-light: #e0f2f1;
+    --orange: #f57c00;
+    --orange-light: #fff3e0;
+    --indigo: #3949ab;
+    --indigo-light: #e8eaf6;
+    --green: #2e7d32;
+    --green-light: #e8f5e9;
+    --red: #c62828;
+    --gray-bg: #f0ebf8;
+    --card-bg: #ffffff;
+    --border: #dadce0;
+    --text-main: #202124;
+    --text-secondary: #5f6368;
+    --text-small: #80868b;
+    --shadow: 0 2px 6px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.08);
+    --shadow-hover: 0 4px 12px rgba(0,0,0,.15);
+    --radius: 8px;
+    --font: 'Google Sans', 'Noto Sans Thai', Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    background: var(--gray-bg);
+    color: var(--text-main);
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  /* ── Progress bar ── */
+  #progress-wrap {
+    position: sticky; top: 0; z-index: 100;
+    background: #fff; padding: 8px 16px 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.15);
+  }
+  #progress-label {
+    font-size: 12px; color: var(--text-secondary);
+    margin-bottom: 4px; display: flex; justify-content: space-between;
+  }
+  #progress-bar {
+    height: 6px; background: #e0e0e0; border-radius: 3px; overflow: hidden;
+  }
+  #progress-fill {
+    height: 100%; background: var(--google-blue);
+    border-radius: 3px; transition: width .4s ease;
+    width: 14.28%;
+  }
+
+  /* ── Section nav tabs ── */
+  #section-nav {
+    background: #fff; border-bottom: 1px solid var(--border);
+    overflow-x: auto; white-space: nowrap;
+    padding: 0 16px;
+    scrollbar-width: thin;
+  }
+  .nav-tab {
+    display: inline-block; padding: 14px 18px; font-size: 13px;
+    color: var(--text-secondary); cursor: pointer; border-bottom: 3px solid transparent;
+    transition: all .2s; font-weight: 500;
+  }
+  .nav-tab:hover { color: var(--google-blue); background: var(--google-blue-light); }
+  .nav-tab.active { color: var(--google-blue); border-bottom-color: var(--google-blue); }
+
+  /* ── Main container ── */
+  .container { max-width: 720px; margin: 0 auto; padding: 24px 16px 0; }
+
+  /* ── Header card ── */
+  .form-header {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .form-header-accent {
+    height: 10px;
+    background: linear-gradient(90deg, var(--google-blue), var(--purple), var(--teal));
+  }
+  .form-header-body { padding: 24px 28px; }
+  .form-title {
+    font-size: 22px; font-weight: 600; color: var(--text-main);
+    line-height: 1.4; margin-bottom: 8px;
+  }
+  .form-subtitle {
+    font-size: 13px; color: var(--text-secondary); line-height: 1.6;
+    font-style: italic; margin-bottom: 16px;
+  }
+  .form-info-grid {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 10px;
+    background: var(--google-blue-light); border-radius: 6px; padding: 12px 16px;
+  }
+  .form-info-item { text-align: center; }
+  .form-info-num  { font-size: 20px; font-weight: 700; color: var(--google-blue); }
+  .form-info-lbl  { font-size: 11px; color: var(--text-secondary); }
+
+  /* ── Section label ── */
+  .section-banner {
+    background: var(--card-bg);
+    border-left: 5px solid var(--google-blue);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin: 20px 0 10px;
+    box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-icon { font-size: 28px; }
+  .section-title-wrap {}
+  .section-title { font-size: 15px; font-weight: 700; color: var(--text-main); }
+  .section-desc  { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  .scale-guide {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px;
+  }
+  .scale-chip {
+    font-size: 11px; padding: 3px 10px; border-radius: 20px;
+    border: 1px solid var(--border); color: var(--text-secondary);
+    background: #f8f9fa;
+  }
+  .scale-chip strong { color: var(--google-blue); }
+
+  /* ── Question card ── */
+  .q-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px 22px;
+    margin-bottom: 10px;
+    border-left: 4px solid transparent;
+    transition: box-shadow .2s, transform .15s;
+    position: relative;
+  }
+  .q-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+  .q-card:focus-within { border-left-color: var(--google-blue); }
+
+  .q-code {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px; margin-bottom: 8px;
+    letter-spacing: .5px;
+  }
+  .q-text {
+    font-size: 14px; color: var(--text-main); line-height: 1.6;
+    margin-bottom: 14px;
+  }
+  .required-star { color: var(--red); margin-left: 4px; }
+
+  /* Likert scale row */
+  .likert-wrap {
+    width: 100%;
+  }
+  .likert-labels {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--text-secondary);
+    margin-bottom: 6px; padding: 0 4px;
+  }
+  .likert-row {
+    display: flex; justify-content: space-between;
+    background: #f8f9fa; border-radius: 6px; padding: 8px 4px;
+    gap: 4px;
+  }
+  .likert-opt {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    gap: 4px; cursor: pointer;
+  }
+  .likert-opt input[type=radio] { display: none; }
+  .likert-btn {
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 2px solid var(--border); background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: var(--text-secondary);
+    cursor: pointer; transition: all .2s;
+  }
+  .likert-opt input:checked + .likert-btn {
+    background: var(--google-blue); border-color: var(--google-blue);
+    color: #fff; transform: scale(1.15);
+    box-shadow: 0 2px 8px rgba(26,115,232,.4);
+  }
+  .likert-btn:hover { border-color: var(--google-blue); color: var(--google-blue); }
+  .likert-opt-label { font-size: 10px; color: var(--text-small); }
+
+  /* Checkbox / Radio (demographic) */
+  .demo-field { margin-bottom: 16px; }
+  .demo-label { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
+  .demo-options { display: flex; flex-wrap: wrap; gap: 8px; }
+  .demo-opt {
+    display: flex; align-items: center; gap: 6px;
+    background: #f8f9fa; border: 1px solid var(--border);
+    border-radius: 20px; padding: 6px 14px; cursor: pointer;
+    font-size: 13px; transition: all .2s;
+  }
+  .demo-opt:hover { background: var(--google-blue-light); border-color: var(--google-blue); }
+  .demo-opt input { accent-color: var(--google-blue); }
+
+  /* Dropdown */
+  .demo-select {
+    width: 100%; padding: 10px 14px; border: 1px solid var(--border);
+    border-radius: 6px; font-size: 14px; font-family: var(--font);
+    background: #fff; color: var(--text-main); cursor: pointer;
+    outline: none; transition: border-color .2s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235f6368'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+    background-size: 20px;
+  }
+  .demo-select:focus { border-color: var(--google-blue); }
+
+  /* Color coding per variable */
+  .var-APC  { --var-color: var(--google-blue); --var-light: var(--google-blue-light); }
+  .var-PDFC { --var-color: var(--teal);        --var-light: var(--teal-light); }
+  .var-AEA  { --var-color: var(--purple);      --var-light: var(--purple-light); }
+  .var-AIAT { --var-color: var(--orange);      --var-light: var(--orange-light); }
+  .var-AIU  { --var-color: var(--green);       --var-light: var(--green-light); }
+
+  .var-APC  .q-code { background: var(--google-blue-light); color: var(--google-blue); }
+  .var-PDFC .q-code { background: var(--teal-light);        color: var(--teal); }
+  .var-AEA  .q-code { background: var(--purple-light);      color: var(--purple); }
+  .var-AIAT .q-code { background: var(--orange-light);      color: var(--orange); }
+  .var-AIU  .q-code { background: var(--green-light);       color: var(--green); }
+
+  .var-APC  .q-card:focus-within { border-left-color: var(--google-blue); }
+  .var-PDFC .q-card:focus-within { border-left-color: var(--teal); }
+  .var-AEA  .q-card:focus-within { border-left-color: var(--purple); }
+  .var-AIAT .q-card:focus-within { border-left-color: var(--orange); }
+  .var-AIU  .q-card:focus-within { border-left-color: var(--green); }
+
+  .section-banner.APC  { border-left-color: var(--google-blue); }
+  .section-banner.PDFC { border-left-color: var(--teal); }
+  .section-banner.AEA  { border-left-color: var(--purple); }
+  .section-banner.AIAT { border-left-color: var(--orange); }
+  .section-banner.AIU  { border-left-color: var(--green); }
+
+  /* dimension sub-label */
+  .dim-label {
+    font-size: 11px; font-style: italic; color: var(--text-secondary);
+    margin-bottom: 14px; padding-left: 2px;
+  }
+  .dim-header {
+    background: linear-gradient(90deg, var(--var-light, #f8f9fa) 0%, transparent 100%);
+    border-radius: 4px; padding: 6px 10px; margin: 8px 0 12px;
+    font-size: 12px; font-weight: 600; color: var(--var-color, var(--text-secondary));
+  }
+
+  /* Textarea */
+  .textarea-field {
+    width: 100%; min-height: 100px; padding: 10px 14px;
+    border: 1px solid var(--border); border-radius: 6px;
+    font-size: 14px; font-family: var(--font); resize: vertical;
+    outline: none; transition: border-color .2s; color: var(--text-main);
+  }
+  .textarea-field:focus { border-color: var(--google-blue); }
+
+  /* Nav buttons */
+  .nav-btns {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 24px; padding: 0 4px;
+  }
+  .btn {
+    padding: 10px 28px; border-radius: 4px; font-size: 14px;
+    font-weight: 600; cursor: pointer; border: none;
+    font-family: var(--font); transition: all .2s;
+  }
+  .btn-prev { background: transparent; color: var(--google-blue); border: 1px solid var(--border); }
+  .btn-prev:hover { background: var(--google-blue-light); }
+  .btn-next { background: var(--google-blue); color: #fff; }
+  .btn-next:hover { background: #1557b0; box-shadow: 0 2px 8px rgba(26,115,232,.4); }
+  .btn-submit { background: var(--green); color: #fff; }
+  .btn-submit:hover { background: #1b5e20; }
+  .page-indicator { font-size: 13px; color: var(--text-secondary); }
+
+  /* Section content visibility */
+  .section-content { display: none; }
+  .section-content.active { display: block; }
+
+  /* Consent card */
+  .consent-card {
+    background: #e3f2fd; border-radius: 6px; padding: 14px 18px;
+    margin-bottom: 20px; border-left: 4px solid var(--google-blue);
+  }
+  .consent-card h4 { font-size: 13px; color: var(--google-blue); margin-bottom: 8px; }
+  .consent-card ul { padding-left: 18px; font-size: 13px; color: var(--text-secondary); line-height: 1.8; }
+
+  /* Consent checkbox */
+  .consent-check {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: #fff; border: 2px solid var(--border); border-radius: 6px;
+    padding: 14px; cursor: pointer; transition: border-color .2s;
+  }
+  .consent-check:hover { border-color: var(--google-blue); }
+  .consent-check input { accent-color: var(--google-blue); width: 18px; height: 18px; margin-top: 1px; flex-shrink: 0; }
+  .consent-check span { font-size: 13px; color: var(--text-main); line-height: 1.5; }
+
+  /* Tooltip for instruction */
+  .instr-box {
+    background: #fff9c4; border-left: 3px solid #f9a825;
+    border-radius: 4px; padding: 8px 12px; font-size: 12px;
+    color: #5d4037; margin-bottom: 12px; line-height: 1.6;
+  }
+
+  /* Responsive */
+  @media (max-width: 540px) {
+    .form-info-grid { grid-template-columns: 1fr 1fr; }
+    .likert-btn { width: 32px; height: 32px; font-size: 12px; }
+    .nav-tab { padding: 12px 12px; font-size: 12px; }
+  }
+
+  .thank-you {
+    text-align: center; padding: 40px 20px;
+    display: none;
+  }
+  .thank-you h2 { font-size: 24px; color: var(--green); margin-bottom: 12px; }
+  .thank-you p { color: var(--text-secondary); font-size: 14px; line-height: 1.7; }
+  .checkmark { font-size: 64px; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+
+<!-- Progress -->
+<div id="progress-wrap">
+  <div id="progress-label">
+    <span id="progress-text">ส่วนที่ 1 จาก 7</span>
+    <span id="progress-pct">14%</span>
+  </div>
+  <div id="progress-bar"><div id="progress-fill"></div></div>
+</div>
+
+<!-- Section nav -->
+<div id="section-nav">
+  <span class="nav-tab active" onclick="goSection(0)">📋 ข้อมูลทั่วไป</span>
+  <span class="nav-tab" onclick="goSection(1)">🧠 APC</span>
+  <span class="nav-tab" onclick="goSection(2)">🏫 PDFC</span>
+  <span class="nav-tab" onclick="goSection(3)">⚖️ AEA</span>
+  <span class="nav-tab" onclick="goSection(4)">✅ AIAT</span>
+  <span class="nav-tab" onclick="goSection(5)">📊 AIU</span>
+  <span class="nav-tab" onclick="goSection(6)">💬 ข้อเสนอแนะ</span>
+</div>
+
+<div class="container">
+
+  <!-- ═══ HEADER ═══ -->
+  <div class="form-header">
+    <div class="form-header-accent"></div>
+    <div class="form-header-body">
+      <div class="form-title">แบบสอบถามเพื่อการวิจัยเชิงปริมาณ</div>
+      <div class="form-subtitle">ปัจจัยเชิงสาเหตุที่มีอิทธิพลต่อการยอมรับและการใช้ปัญญาประดิษฐ์เพื่อการจัดการเรียนรู้<br>ของครูโรงเรียนเอกชนสอนศาสนาอิสลามในภาคใต้ของประเทศไทย</div>
+      <div class="form-info-grid">
+        <div class="form-info-item"><div class="form-info-num">7</div><div class="form-info-lbl">ตอน</div></div>
+        <div class="form-info-item"><div class="form-info-num">51</div><div class="form-info-lbl">ข้อคำถาม</div></div>
+        <div class="form-info-item"><div class="form-info-num">25–35</div><div class="form-info-lbl">นาที</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SECTION 0: ข้อมูลทั่วไป ═══ -->
+  <div class="section-content active" id="sec0">
+
+    <div class="consent-card">
+      <h4>🔒 สิทธิของผู้เข้าร่วมและการรักษาความลับ</h4>
+      <ul>
+        <li>การเข้าร่วมเป็นไปโดยสมัครใจ สามารถถอนตัวได้ทุกเมื่อ</li>
+        <li>ไม่มีการเก็บชื่อ–นามสกุล ข้อมูลจะรายงานเป็นภาพรวมเท่านั้น</li>
+        <li>ข้อมูลดิจิทัลจะถูกลบภายใน 1 ปีหลังเผยแพร่งานวิจัย</li>
+      </ul>
+    </div>
+
+    <label class="consent-check">
+      <input type="checkbox" id="consent-cb" onchange="updateConsent()">
+      <span>ข้าพเจ้าได้อ่านและเข้าใจข้อมูลข้างต้น และยินยอมเข้าร่วมการวิจัยโดยสมัครใจ<span class="required-star">*</span></span>
+    </label>
+
+    <div class="section-banner" style="margin-top:20px;">
+      <div class="section-icon">📋</div>
+      <div class="section-title-wrap">
+        <div class="section-title">ตอนที่ 1  ข้อมูลทั่วไปของผู้ตอบแบบสอบถาม</div>
+        <div class="section-desc">โปรดทำเครื่องหมาย ✓ ในช่องที่ตรงกับข้อมูลของท่าน</div>
+      </div>
+    </div>
+
+    <div class="q-card">
+      <!-- Province dropdown – linked to school list -->
+      <div class="demo-field">
+        <div class="demo-label">จังหวัดที่ปฏิบัติงาน<span class="required-star">*</span></div>
+        <select class="demo-select" id="sel-province" onchange="updateSchools()">
+          <option value="">-- เลือกจังหวัด --</option>
+          <option>ปัตตานี</option><option>ยะลา</option><option>นราธิวาส</option>
+          <option>สงขลา</option><option>สตูล</option><option>ตรัง</option>
+          <option>พัทลุง</option><option>นครศรีธรรมราช</option>
+        </select>
+      </div>
+
+      <div class="demo-field">
+        <div class="demo-label">ชื่อโรงเรียน<span class="required-star">*</span>
+          <span style="font-size:11px;color:var(--text-small);font-weight:400;"> (เลือกจังหวัดก่อน)</span>
+        </div>
+        <select class="demo-select" id="sel-school">
+          <option value="">-- เลือกโรงเรียน --</option>
+        </select>
+      </div>
+
+      <div class="demo-field">
+        <div class="demo-label">เพศ<span class="required-star">*</span></div>
+        <div class="demo-options">
+          <label class="demo-opt"><input type="radio" name="gender" value="ชาย"> ชาย</label>
+          <label class="demo-opt"><input type="radio" name="gender" value="หญิง"> หญิง</label>
+        </div>
+      </div>
+
+      <div class="demo-field">
+        <div class="demo-label">อายุ<span class="required-star">*</span></div>
+        <div class="demo-options">
+          <label class="demo-opt"><input type="radio" name="age" value="<30"> ต่ำกว่า 30 ปี</label>
+          <label class="demo-opt"><input type="radio" name="age" value="30-39"> 30–39 ปี</label>
+          <label class="demo-opt"><input type="radio" name="age" value="40-49"> 40–49 ปี</label>
+          <label class="demo-opt"><input type="radio" name="age" value="50+"> 50 ปีขึ้นไป</label>
+        </div>
+      </div>
+
+      <div class="demo-field">
+        <div class="demo-label">ระดับการศึกษาสูงสุด<span class="required-star">*</span></div>
+        <div class="demo-options">
+          <label class="demo-opt"><input type="radio" name="edu" value="บ.ตรี"> ปริญญาตรี</label>
+          <label class="demo-opt"><input type="radio" name="edu" value="บ.โท"> ปริญญาโท</label>
+          <label class="demo-opt"><input type="radio" name="edu" value="บ.เอก"> ปริญญาเอก</label>
+          <label class="demo-opt"><input type="radio" name="edu" value="อื่น ๆ"> อื่น ๆ</label>
+        </div>
+      </div>
+
+      <div class="demo-field">
+        <div class="demo-label">สถานภาพการปฏิบัติงาน<span class="required-star">*</span></div>
+        <div class="demo-options">
+          <label class="demo-opt"><input type="radio" name="role" value="ครูสอนอิสลามศึกษา"> ครูสอนอิสลามศึกษา</label>
+          <label class="demo-opt"><input type="radio" name="role" value="วิทยากรอิสลามศึกษา"> วิทยากรอิสลามศึกษา</label>
+        </div>
+      </div>
+
+      <div class="demo-field">
+        <div class="demo-label">ประสบการณ์การสอน<span class="required-star">*</span></div>
+        <div class="demo-options">
+          <label class="demo-opt"><input type="radio" name="exp" value="1-5"> 1–5 ปี</label>
+          <label class="demo-opt"><input type="radio" name="exp" value="6-10"> 6–10 ปี</label>
+          <label class="demo-opt"><input type="radio" name="exp" value="11-15"> 11–15 ปี</label>
+          <label class="demo-opt"><input type="radio" name="exp" value="15+"> มากกว่า 15 ปี</label>
+        </div>
+      </div>
+
+      <div class="demo-field">
+        <div class="demo-label">ระดับชั้นที่สอน (เลือกได้มากกว่า 1)<span class="required-star">*</span></div>
+        <div class="demo-options">
+          <label class="demo-opt"><input type="checkbox" name="level" value="ป."> ประถมศึกษา</label>
+          <label class="demo-opt"><input type="checkbox" name="level" value="ม.ต้น"> มัธยมต้น</label>
+          <label class="demo-opt"><input type="checkbox" name="level" value="ม.ปลาย"> มัธยมปลาย</label>
+        </div>
+      </div>
+
+      <div class="demo-field">
+        <div class="demo-label">ประสบการณ์การใช้ AI<span class="required-star">*</span></div>
+        <div class="demo-options">
+          <label class="demo-opt"><input type="radio" name="ai-exp" value="ไม่เคย"> ไม่เคยใช้</label>
+          <label class="demo-opt"><input type="radio" name="ai-exp" value="<1"> น้อยกว่า 1 ปี</label>
+          <label class="demo-opt"><input type="radio" name="ai-exp" value="1-2"> 1–2 ปี</label>
+          <label class="demo-opt"><input type="radio" name="ai-exp" value="2+"> มากกว่า 2 ปี</label>
+        </div>
+      </div>
+
+      <div class="demo-field">
+        <div class="demo-label">การอบรม AI เพื่อการศึกษา<span class="required-star">*</span></div>
+        <div class="demo-options">
+          <label class="demo-opt"><input type="radio" name="ai-train" value="ไม่เคย"> ไม่เคย</label>
+          <label class="demo-opt"><input type="radio" name="ai-train" value="1-2"> เคย 1–2 ครั้ง</label>
+          <label class="demo-opt"><input type="radio" name="ai-train" value="3+"> เคย 3 ครั้งขึ้นไป</label>
+        </div>
+      </div>
+
+      <div class="demo-field">
+        <div class="demo-label">ความถี่ใช้ AI ในช่วง 1 ภาคเรียนที่ผ่านมา<span class="required-star">*</span></div>
+        <div class="demo-options" style="flex-direction:column;gap:6px;">
+          <label class="demo-opt"><input type="radio" name="ai-freq" value="ไม่เคย"> ไม่เคย</label>
+          <label class="demo-opt"><input type="radio" name="ai-freq" value="<เดือนละ1"> น้อยกว่าเดือนละ 1 ครั้ง</label>
+          <label class="demo-opt"><input type="radio" name="ai-freq" value="เดือนละ1-3"> เดือนละ 1–3 ครั้ง</label>
+          <label class="demo-opt"><input type="radio" name="ai-freq" value="สัปดาห์ละ1-2"> สัปดาห์ละ 1–2 ครั้ง</label>
+          <label class="demo-opt"><input type="radio" name="ai-freq" value="สัปดาห์ละ3+"> สัปดาห์ละ 3 ครั้งขึ้นไป</label>
+        </div>
+      </div>
+
+      <div class="demo-field">
+        <div class="demo-label">เครื่องมือ AI ที่ใช้ (เลือกได้มากกว่า 1)</div>
+        <div class="demo-options">
+          <label class="demo-opt"><input type="checkbox" name="tool" value="ChatGPT"> ChatGPT</label>
+          <label class="demo-opt"><input type="checkbox" name="tool" value="Gemini"> Gemini</label>
+          <label class="demo-opt"><input type="checkbox" name="tool" value="Copilot"> Copilot</label>
+          <label class="demo-opt"><input type="checkbox" name="tool" value="Claude"> Claude</label>
+          <label class="demo-opt"><input type="checkbox" name="tool" value="Canva AI"> Canva AI</label>
+          <label class="demo-opt"><input type="checkbox" name="tool" value="DeepSeek"> DeepSeek</label>
+          <label class="demo-opt"><input type="checkbox" name="tool" value="Perplexity"> Perplexity</label>
+        </div>
+      </div>
+
+      <div class="demo-field">
+        <div class="demo-label">ขนาดสถานศึกษา<span class="required-star">*</span></div>
+        <div class="demo-options">
+          <label class="demo-opt"><input type="radio" name="school-size" value="เล็ก"> เล็ก (&lt;500 คน)</label>
+          <label class="demo-opt"><input type="radio" name="school-size" value="กลาง"> กลาง (500–1,500)</label>
+          <label class="demo-opt"><input type="radio" name="school-size" value="ใหญ่"> ใหญ่ (&gt;1,500 คน)</label>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /sec0 -->
+
+  <!-- ═══ Sections 1–5: Variable questions ═══ -->
+
+  <!-- APC -->
+  <div class="section-content" id="sec1">
+    <div class="section-banner APC">
+      <div class="section-icon">🧠</div>
+      <div class="section-title-wrap">
+        <div class="section-title">ตอนที่ 2  สมรรถนะการใช้ AI เพื่อการจัดการเรียนรู้ (APC)</div>
+        <div class="section-desc">โปรดประเมินระดับความสามารถของท่านตามข้อรายการต่อไปนี้</div>
+        <div class="scale-guide">
+          <span class="scale-chip"><strong>1</strong> = น้อยที่สุด</span>
+          <span class="scale-chip"><strong>2</strong> = น้อย</span>
+          <span class="scale-chip"><strong>3</strong> = ปานกลาง</span>
+          <span class="scale-chip"><strong>4</strong> = มาก</span>
+          <span class="scale-chip"><strong>5</strong> = มากที่สุด</span>
+        </div>
+      </div>
+    </div>
+    <div class="var-APC">
+      <div class="dim-header">มิติที่ 1: ความรู้และการประเมินเครื่องมือ AI (AI Knowledge and Evaluation)</div>
+      <div id="qs-APC1-3"></div>
+      <div class="dim-header">มิติที่ 2: การออกแบบการจัดการเรียนรู้ด้วย AI (AI-Enhanced Instructional Design)</div>
+      <div id="qs-APC4-6"></div>
+      <div class="dim-header">มิติที่ 3: การกำกับดูแลและการใช้ AI อย่างรับผิดชอบ (Responsible AI Competence)</div>
+      <div id="qs-APC7-9"></div>
+    </div>
+  </div>
+
+  <!-- PDFC -->
+  <div class="section-content" id="sec2">
+    <div class="section-banner PDFC">
+      <div class="section-icon">🏫</div>
+      <div class="section-title-wrap">
+        <div class="section-title">ตอนที่ 3  การขับเคลื่อนเชิงนโยบายและปัจจัยเอื้ออำนวย (PDFC)</div>
+        <div class="section-desc">โปรดประเมินระดับความคิดเห็นของท่านเกี่ยวกับการสนับสนุนของสถานศึกษา</div>
+        <div class="scale-guide">
+          <span class="scale-chip"><strong>1</strong> = ไม่เห็นด้วยอย่างยิ่ง</span>
+          <span class="scale-chip"><strong>3</strong> = ปานกลาง</span>
+          <span class="scale-chip"><strong>5</strong> = เห็นด้วยอย่างยิ่ง</span>
+        </div>
+      </div>
+    </div>
+    <div class="var-PDFC">
+      <div class="dim-header">มิติที่ 1: การสนับสนุนเชิงนโยบายและภาวะผู้นำ</div>
+      <div id="qs-PDFC1-3"></div>
+      <div class="dim-header">มิติที่ 2: การสนับสนุนด้านทรัพยากรและการพัฒนาศักยภาพ</div>
+      <div id="qs-PDFC4-6"></div>
+      <div class="dim-header">มิติที่ 3: วัฒนธรรมองค์กรและการขับเคลื่อนนวัตกรรม</div>
+      <div id="qs-PDFC7-9"></div>
+    </div>
+  </div>
+
+  <!-- AEA -->
+  <div class="section-content" id="sec3">
+    <div class="section-banner AEA">
+      <div class="section-icon">⚖️</div>
+      <div class="section-title-wrap">
+        <div class="section-title">ตอนที่ 4  ความตระหนักด้านจริยธรรมภายใต้กรอบคุณธรรมอิสลาม (AEA)</div>
+        <div class="section-desc">โปรดประเมินระดับความคิดเห็นด้านจริยธรรมในการใช้ AI</div>
+        <div class="scale-guide">
+          <span class="scale-chip"><strong>1</strong> = ไม่เห็นด้วยอย่างยิ่ง</span>
+          <span class="scale-chip"><strong>3</strong> = ปานกลาง</span>
+          <span class="scale-chip"><strong>5</strong> = เห็นด้วยอย่างยิ่ง</span>
+        </div>
+      </div>
+    </div>
+    <div class="var-AEA">
+      <div class="dim-header">มิติที่ 1: ความซื่อสัตย์และความโปร่งใสทางวิชาการ</div>
+      <div id="qs-AEA1-3"></div>
+      <div class="dim-header">มิติที่ 2: ความตระหนักด้านการคุ้มครองข้อมูลและความปลอดภัย</div>
+      <div id="qs-AEA4-6"></div>
+      <div class="dim-header">มิติที่ 3: คุณธรรมอิสลามและความรับผิดชอบทางสังคม</div>
+      <div id="qs-AEA7-9"></div>
+    </div>
+  </div>
+
+  <!-- AIAT -->
+  <div class="section-content" id="sec4">
+    <div class="section-banner AIAT">
+      <div class="section-icon">✅</div>
+      <div class="section-title-wrap">
+        <div class="section-title">ตอนที่ 5  การยอมรับ AI เพื่อการจัดการเรียนรู้ (AIAT)</div>
+        <div class="section-desc">โปรดประเมินระดับการยอมรับ AI ของท่าน</div>
+        <div class="scale-guide">
+          <span class="scale-chip"><strong>1</strong> = ไม่เห็นด้วยอย่างยิ่ง</span>
+          <span class="scale-chip"><strong>3</strong> = ปานกลาง</span>
+          <span class="scale-chip"><strong>5</strong> = เห็นด้วยอย่างยิ่ง</span>
+        </div>
+      </div>
+    </div>
+    <div class="var-AIAT">
+      <div class="dim-header">มิติที่ 1: ทัศนคติต่อการใช้ AI (Attitude toward AI Use)</div>
+      <div id="qs-AIAT1-3"></div>
+      <div class="dim-header">มิติที่ 2: การรับรู้ความสามารถในการควบคุมการใช้ AI (Perceived Behavioral Control)</div>
+      <div id="qs-AIAT4-6"></div>
+      <div class="dim-header">มิติที่ 3: ความตั้งใจใช้ AI (Behavioral Intention)</div>
+      <div id="qs-AIAT7-9"></div>
+    </div>
+  </div>
+
+  <!-- AIU -->
+  <div class="section-content" id="sec5">
+    <div class="section-banner AIU">
+      <div class="section-icon">📊</div>
+      <div class="section-title-wrap">
+        <div class="section-title">ตอนที่ 6  พฤติกรรมการใช้ AI เพื่อการจัดการเรียนรู้ (AIU)</div>
+        <div class="section-desc">โปรดประเมินความถี่ในการปฏิบัติจริงของท่าน</div>
+        <div class="scale-guide">
+          <span class="scale-chip"><strong>1</strong> = ไม่เคยปฏิบัติ</span>
+          <span class="scale-chip"><strong>2</strong> = น้อยครั้ง</span>
+          <span class="scale-chip"><strong>3</strong> = บางครั้ง</span>
+          <span class="scale-chip"><strong>4</strong> = บ่อยครั้ง</span>
+          <span class="scale-chip"><strong>5</strong> = เป็นประจำ</span>
+        </div>
+      </div>
+    </div>
+    <div class="var-AIU">
+      <div class="dim-header">มิติที่ 1: การใช้ AI เพื่อการออกแบบการจัดการเรียนรู้</div>
+      <div id="qs-AIU1-3"></div>
+      <div class="dim-header">มิติที่ 2: การใช้ AI ในการจัดกิจกรรมการเรียนรู้</div>
+      <div id="qs-AIU4-6"></div>
+      <div class="dim-header">มิติที่ 3: การใช้ AI เพื่อการวัดและประเมินผล</div>
+      <div id="qs-AIU7-9"></div>
+      <div class="dim-header">มิติที่ 4: การใช้ AI เพื่อการพัฒนาวิชาชีพ</div>
+      <div id="qs-AIU10-12"></div>
+      <div class="dim-header">มิติที่ 5: การใช้ AI อย่างรับผิดชอบในการปฏิบัติงาน</div>
+      <div id="qs-AIU13-15"></div>
+    </div>
+  </div>
+
+  <!-- Section 6: ข้อเสนอแนะ -->
+  <div class="section-content" id="sec6">
+    <div class="section-banner" style="border-left-color:#546e7a;">
+      <div class="section-icon">💬</div>
+      <div class="section-title-wrap">
+        <div class="section-title">ตอนที่ 7  ข้อเสนอแนะเพิ่มเติม</div>
+        <div class="section-desc">โปรดแสดงความคิดเห็นหรือข้อเสนอแนะเกี่ยวกับการใช้ AI เพื่อการจัดการเรียนรู้ (ไม่บังคับ)</div>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-text">ข้อเสนอแนะ ความคิดเห็น หรือประสบการณ์การใช้ AI เพื่อการจัดการเรียนรู้ที่ท่านต้องการแบ่งปัน</div>
+      <textarea class="textarea-field" placeholder="พิมพ์ข้อเสนอแนะของท่านที่นี่..."></textarea>
+    </div>
+
+    <div class="q-card" style="background:#e8f5e9;border-left:4px solid #2e7d32;">
+      <div class="q-text" style="font-weight:600;color:#1b5e20;">🎉 ขอบพระคุณที่ตอบแบบสอบถามครบทุกส่วน!</div>
+      <div class="q-text">ข้อมูลของท่านมีคุณค่าอย่างยิ่งต่อการวิจัยเพื่อพัฒนาการศึกษาในโรงเรียนเอกชนสอนศาสนาอิสลาม กรุณากด <strong>ส่งแบบสอบถาม</strong> เพื่อยืนยันการตอบ</div>
+    </div>
+  </div>
+
+  <!-- Navigation buttons -->
+  <div class="nav-btns" id="nav-btns">
+    <button class="btn btn-prev" id="btn-prev" onclick="prevSection()" style="display:none">← ย้อนกลับ</button>
+    <span class="page-indicator" id="page-indicator">ส่วนที่ 1 / 7</span>
+    <button class="btn btn-next" id="btn-next" onclick="nextSection()">ถัดไป →</button>
+  </div>
+
+  <!-- Thank you -->
+  <div class="thank-you" id="thank-you">
+    <div class="checkmark">✅</div>
+    <h2>ส่งแบบสอบถามเรียบร้อยแล้ว</h2>
+    <p>ขอบพระคุณท่านที่สละเวลาตอบแบบสอบถาม<br>
+    ข้อมูลของท่านจะถูกเก็บรักษาเป็นความลับและใช้เพื่อการวิจัยเท่านั้น<br>
+    <br><strong>ผู้วิจัยขอขอบคุณเป็นอย่างสูงสำหรับความร่วมมือของท่าน</strong></p>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ── Question data ──────────────────────────────────────────────────────────
+const questions = {
+  "APC1-3": [
+    {code:"APC1", text:"ข้าพเจ้าสามารถสืบค้นและคัดเลือกเครื่องมือ AI ที่เหมาะสมกับวัตถุประสงค์การจัดการเรียนรู้ได้"},
+    {code:"APC2", text:"ข้าพเจ้าสามารถประเมินความถูกต้องและความน่าเชื่อถือของข้อมูลหรือเนื้อหาที่ AI สร้างขึ้นได้"},
+    {code:"APC3", text:"ข้าพเจ้าสามารถประเมินเงื่อนไขและข้อจำกัดของเครื่องมือ AI ก่อนนำมาใช้ในการจัดการเรียนรู้ได้"},
+  ],
+  "APC4-6": [
+    {code:"APC4", text:"ข้าพเจ้าสามารถออกแบบกิจกรรมการเรียนรู้ที่บูรณาการ AI ให้สอดคล้องกับผลลัพธ์การเรียนรู้ได้"},
+    {code:"APC5", text:"ข้าพเจ้าสามารถใช้ AI เพื่อช่วยออกแบบเครื่องมือวัดและประเมินผลการเรียนรู้ได้"},
+    {code:"APC6", text:"ข้าพเจ้าสามารถใช้ข้อมูลที่ AI ประมวลผลเพื่อวิเคราะห์และปรับปรุงการจัดการเรียนรู้ได้"},
+  ],
+  "APC7-9": [
+    {code:"APC7", text:"ข้าพเจ้าสามารถตรวจสอบความคลาดเคลื่อนหรืออคติในผลลัพธ์ของ AI ก่อนนำไปใช้กับผู้เรียนได้"},
+    {code:"APC8", text:"ข้าพเจ้าสามารถกำหนดขอบเขตการใช้ AI ในชั้นเรียนโดยคำนึงถึงความปลอดภัยของข้อมูลผู้เรียนได้"},
+    {code:"APC9", text:"ข้าพเจ้าสามารถตัดสินใจเลือกใช้ AI ให้เหมาะสมกับหลักจริยธรรมและบริบทของโรงเรียนเอกชนสอนศาสนาอิสลามได้"},
+  ],
+  "PDFC1-3": [
+    {code:"PDFC1", text:"สถานศึกษาของข้าพเจ้ามีนโยบายที่ส่งเสริมการประยุกต์ใช้ปัญญาประดิษฐ์ (AI) เพื่อการจัดการเรียนรู้อย่างชัดเจน"},
+    {code:"PDFC2", text:"ผู้บริหารสถานศึกษาสนับสนุนและส่งเสริมให้ครูประยุกต์ใช้ AI เพื่อพัฒนาการจัดการเรียนรู้อย่างต่อเนื่อง"},
+    {code:"PDFC3", text:"สถานศึกษากำหนดแนวทางหรือมาตรการในการใช้ AI เพื่อการจัดการเรียนรู้ที่ครูสามารถนำไปปฏิบัติได้"},
+  ],
+  "PDFC4-6": [
+    {code:"PDFC4", text:"สถานศึกษาสนับสนุนให้ครูได้รับการพัฒนาความรู้และทักษะเกี่ยวกับการประยุกต์ใช้ AI เพื่อการจัดการเรียนรู้อย่างต่อเนื่อง"},
+    {code:"PDFC5", text:"สถานศึกษาส่งเสริมการแลกเปลี่ยนเรียนรู้ระหว่างครูเกี่ยวกับการประยุกต์ใช้ AI เพื่อพัฒนาการจัดการเรียนรู้"},
+    {code:"PDFC6", text:"สถานศึกษาจัดให้มีอุปกรณ์ ระบบอินเทอร์เน็ต หรือเครื่องมือดิจิทัลที่เพียงพอต่อการประยุกต์ใช้ AI ในการจัดการเรียนรู้"},
+  ],
+  "PDFC7-9": [
+    {code:"PDFC7", text:"สถานศึกษาส่งเสริมให้ครูกล้าทดลองและพัฒนานวัตกรรมการจัดการเรียนรู้โดยใช้ AI"},
+    {code:"PDFC8", text:"สถานศึกษายกย่องหรือให้การยอมรับครูที่ประยุกต์ใช้ AI เพื่อพัฒนาคุณภาพการจัดการเรียนรู้"},
+    {code:"PDFC9", text:"สถานศึกษามีบรรยากาศองค์กรที่เปิดกว้างต่อการประยุกต์ใช้ AI เพื่อพัฒนาการจัดการเรียนรู้"},
+  ],
+  "AEA1-3": [
+    {code:"AEA1", text:"ข้าพเจ้าตระหนักว่าควรตรวจสอบความถูกต้องของข้อมูลที่ AI สร้างขึ้นก่อนนำไปใช้ในการจัดการเรียนรู้"},
+    {code:"AEA2", text:"ข้าพเจ้าตระหนักถึงความสำคัญของความโปร่งใสในการระบุว่า AI มีส่วนช่วยสร้างผลงานทางวิชาการหรือสื่อการเรียนรู้"},
+    {code:"AEA3", text:"ข้าพเจ้าตระหนักว่าการใช้ AI ควรคำนึงถึงลิขสิทธิ์และทรัพย์สินทางปัญญาของผู้อื่น"},
+  ],
+  "AEA4-6": [
+    {code:"AEA4", text:"ข้าพเจ้าตระหนักว่าควรคุ้มครองข้อมูลส่วนบุคคลที่สามารถระบุตัวผู้เรียนเมื่อใช้ AI"},
+    {code:"AEA5", text:"ข้าพเจ้าตระหนักถึงความสำคัญของการเลือกใช้เครื่องมือ AI ที่มีมาตรการรักษาความปลอดภัยของข้อมูล"},
+    {code:"AEA6", text:"ข้าพเจ้าตระหนักถึงความเสี่ยงจากการนำข้อมูลภายในของสถานศึกษาเข้าสู่ระบบ AI สาธารณะ"},
+  ],
+  "AEA7-9": [
+    {code:"AEA7", text:"ข้าพเจ้าตระหนักว่าการประยุกต์ใช้ AI ควรสอดคล้องกับหลักคุณธรรมอิสลามและจรรยาบรรณวิชาชีพครู"},
+    {code:"AEA8", text:"ข้าพเจ้าตระหนักถึงความสำคัญของการตรวจสอบเนื้อหาที่ AI สร้างขึ้นให้เหมาะสมกับบริบทของโรงเรียนเอกชนสอนศาสนาอิสลาม"},
+    {code:"AEA9", text:"ข้าพเจ้าตระหนักว่าการใช้ AI ควรคำนึงถึงความเป็นธรรมและศักดิ์ศรีของผู้เรียนทุกคน"},
+  ],
+  "AIAT1-3": [
+    {code:"AIAT1", text:"ข้าพเจ้าเห็นว่าการใช้ AI เพื่อการจัดการเรียนรู้มีประโยชน์ต่อการปฏิบัติงานของครู"},
+    {code:"AIAT2", text:"ข้าพเจ้ารู้สึกพึงพอใจต่อแนวคิดการนำ AI มาใช้เพื่อพัฒนาการจัดการเรียนรู้"},
+    {code:"AIAT3", text:"โดยรวมแล้ว ข้าพเจ้าเห็นด้วยกับการนำ AI มาใช้เป็นส่วนหนึ่งของการจัดการศึกษา"},
+  ],
+  "AIAT4-6": [
+    {code:"AIAT4", text:"ข้าพเจ้ารับรู้ว่าการตัดสินใจนำ AI มาใช้ในการจัดการเรียนรู้อยู่ภายใต้การควบคุมของข้าพเจ้า"},
+    {code:"AIAT5", text:"ข้าพเจ้ารับรู้ว่าตนเองมีโอกาสและความพร้อมเพียงพอที่จะประยุกต์ใช้ AI ในการจัดการเรียนรู้"},
+    {code:"AIAT6", text:"แม้จะมีอุปสรรค ข้าพเจ้าก็สามารถประยุกต์ใช้ AI เพื่อการจัดการเรียนรู้ได้"},
+  ],
+  "AIAT7-9": [
+    {code:"AIAT7", text:"ข้าพเจ้ามีความตั้งใจที่จะนำ AI มาใช้ในการจัดการเรียนรู้ในภาคการศึกษาถัดไป"},
+    {code:"AIAT8", text:"ข้าพเจ้าวางแผนที่จะเพิ่มการประยุกต์ใช้ AI ในกระบวนการจัดการเรียนรู้ในอนาคต"},
+    {code:"AIAT9", text:"ข้าพเจ้ามีความตั้งใจที่จะใช้ AI เป็นส่วนหนึ่งของการปฏิบัติงานวิชาชีพครูอย่างต่อเนื่อง"},
+  ],
+  "AIU1-3": [
+    {code:"AIU1", text:"ข้าพเจ้าใช้ AI เพื่อช่วยจัดทำแผนการจัดการเรียนรู้"},
+    {code:"AIU2", text:"ข้าพเจ้าใช้ AI เพื่อช่วยออกแบบกิจกรรมการเรียนรู้ให้เหมาะสมกับเนื้อหาและผู้เรียน"},
+    {code:"AIU3", text:"ข้าพเจ้าใช้ AI เพื่อช่วยจัดเตรียมทรัพยากรประกอบการจัดการเรียนรู้"},
+  ],
+  "AIU4-6": [
+    {code:"AIU4", text:"ข้าพเจ้าใช้ AI เพื่อช่วยอธิบายหรือเสริมเนื้อหาระหว่างการจัดการเรียนรู้"},
+    {code:"AIU5", text:"ข้าพเจ้าจัดกิจกรรมที่เปิดโอกาสให้ผู้เรียนใช้ AI เพื่อการค้นคว้าหรือฝึกทักษะ"},
+    {code:"AIU6", text:"ข้าพเจ้าใช้ข้อมูลหรือคำแนะนำจาก AI เพื่อปรับการจัดกิจกรรมให้เหมาะสมกับผู้เรียน"},
+  ],
+  "AIU7-9": [
+    {code:"AIU7", text:"ข้าพเจ้าใช้ AI เพื่อช่วยออกแบบแบบทดสอบหรือเครื่องมือวัดผลการเรียนรู้"},
+    {code:"AIU8", text:"ข้าพเจ้าใช้ AI เพื่อช่วยวิเคราะห์ข้อมูลหรือผลการเรียนรู้ของผู้เรียน"},
+    {code:"AIU9", text:"ข้าพเจ้าใช้ AI เพื่อช่วยจัดทำข้อมูลย้อนกลับสำหรับพัฒนาการเรียนรู้ของผู้เรียน"},
+  ],
+  "AIU10-12": [
+    {code:"AIU10", text:"ข้าพเจ้าใช้ AI เพื่อศึกษาค้นคว้าหรือปรับปรุงความรู้ในสาขาวิชาที่ตนรับผิดชอบ"},
+    {code:"AIU11", text:"ข้าพเจ้าใช้ AI เพื่อสนับสนุนการทำวิจัยในชั้นเรียน"},
+    {code:"AIU12", text:"ข้าพเจ้าใช้ AI เพื่อสนับสนุนการจัดทำผลงานทางวิชาการของตนเอง"},
+  ],
+  "AIU13-15": [
+    {code:"AIU13", text:"ข้าพเจ้าตรวจสอบความถูกต้องและความเหมาะสมของเนื้อหาที่ AI สร้างขึ้นก่อนนำไปใช้กับผู้เรียน"},
+    {code:"AIU14", text:"ข้าพเจ้าเปิดเผยหรืออ้างอิงการใช้ AI อย่างเหมาะสมเมื่อ AI มีส่วนช่วยสร้างผลงานหรือสื่อการเรียนรู้"},
+    {code:"AIU15", text:"ข้าพเจ้าหลีกเลี่ยงการป้อนข้อมูลส่วนบุคคลที่สามารถระบุตัวผู้เรียนลงในระบบ AI สาธารณะ"},
+  ],
+};
+
+// School data per province
+const schools = {
+  "ปัตตานี":["โรงเรียนสตรียะลา (ตัวอย่าง)","โรงเรียนดรุณศาสน์วิทยา","โรงเรียนอิสลามวิทยาลัยแห่งประเทศไทย","โรงเรียนธรรมวิทยามูลนิธิ","โรงเรียนมูลนิธิชุมชนอิสลามศึกษา"],
+  "ยะลา":["โรงเรียนพัฒนาอิสลามวิทยา","โรงเรียนจงรักสัตย์วิทยา","โรงเรียนมุสลิมพัทยาบำรุง","โรงเรียนอิสลามพัฒนา","โรงเรียนประทีปวิทยา"],
+  "นราธิวาส":["โรงเรียนนราธิวาส","โรงเรียนพิทักษ์วิทยา","โรงเรียนแสงธรรมวิทยา","โรงเรียนอิสลามบูรณา","โรงเรียนบาเจาะวิทยา"],
+  "สงขลา":["โรงเรียนศาสนูปถัมภ์","โรงเรียนอิสลามนานาชาติ","โรงเรียนอัลอิสลาห์","โรงเรียนสันติวิทยา","โรงเรียนดารุสสลาม"],
+  "สตูล":["โรงเรียนสตูลวิทยา","โรงเรียนอิสลามพัฒนาสตูล","โรงเรียนประชารักษ์ศึกษา","โรงเรียนอรุณศาสน์วิทยามูลนิธิ","โรงเรียนพิมานพิทยาสรรค์"],
+  "ตรัง":["โรงเรียนวิเชียรมาตุ","โรงเรียนสิเกาประชาผดุงวิทย์","โรงเรียนศึกษาศาสตร์","โรงเรียนกันตังรัษฎาสโมสร","โรงเรียนวังวิเศษ"],
+  "พัทลุง":["โรงเรียนพัทลุง","โรงเรียนอิสลามพัทลุง","โรงเรียนศึกษาสงเคราะห์พัทลุง","โรงเรียนตะโหมด","โรงเรียนควนขนุน"],
+  "นครศรีธรรมราช":["โรงเรียนอิสลามนครหลวง","โรงเรียนจุฬาภรณ์ราชวิทยาลัย","โรงเรียนหัวไทรบำรุงราษฎร์","โรงเรียนสตรีปากพนัง","โรงเรียนทุ่งสง"],
+};
+
+// ── Render Likert questions ──────────────────────────────────────────────────
+function renderLikert(containerId, qList) {
+  const el = document.getElementById('qs-' + containerId);
+  if (!el) return;
+  let html = '';
+  qList.forEach(q => {
+    const varClass = q.code.replace(/\d/g, '');
+    html += `
+    <div class="q-card var-${varClass}">
+      <span class="q-code">${q.code}</span>
+      <div class="q-text">${q.text} <span class="required-star">*</span></div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>น้อยที่สุด / ไม่เห็นด้วยอย่างยิ่ง</span><span>มากที่สุด / เห็นด้วยอย่างยิ่ง</span></div>
+        <div class="likert-row">
+          ${[1,2,3,4,5].map(v => `
+          <label class="likert-opt">
+            <input type="radio" name="${q.code}" value="${v}">
+            <div class="likert-btn">${v}</div>
+            <span class="likert-opt-label">${['น้อยที่สุด','น้อย','ปานกลาง','มาก','มากที่สุด'][v-1]}</span>
+          </label>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+Object.entries(questions).forEach(([key, qs]) => renderLikert(key, qs));
+
+// ── Province → school dropdown ───────────────────────────────────────────────
+function updateSchools() {
+  const prov = document.getElementById('sel-province').value;
+  const sel  = document.getElementById('sel-school');
+  sel.innerHTML = '<option value="">-- เลือกโรงเรียน --</option>';
+  if (prov && schools[prov]) {
+    schools[prov].forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s; opt.textContent = s;
+      sel.appendChild(opt);
+    });
+    // add "อื่น ๆ"
+    const other = document.createElement('option');
+    other.value = 'อื่น ๆ'; other.textContent = 'อื่น ๆ (ระบุในช่องหมายเหตุ)';
+    sel.appendChild(other);
+  }
+}
+
+// ── Section navigation ────────────────────────────────────────────────────────
+let currentSection = 0;
+const totalSections = 7;
+
+function updateUI() {
+  // Sections
+  document.querySelectorAll('.section-content').forEach((s, i) => {
+    s.classList.toggle('active', i === currentSection);
+  });
+  // Nav tabs
+  document.querySelectorAll('.nav-tab').forEach((t, i) => {
+    t.classList.toggle('active', i === currentSection);
+  });
+  // Progress
+  const pct = Math.round((currentSection + 1) / totalSections * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('progress-text').textContent =
+    `ส่วนที่ ${currentSection + 1} จาก ${totalSections}`;
+  document.getElementById('page-indicator').textContent =
+    `ส่วนที่ ${currentSection + 1} / ${totalSections}`;
+  // Buttons
+  document.getElementById('btn-prev').style.display = currentSection === 0 ? 'none' : 'inline-block';
+  const btnNext = document.getElementById('btn-next');
+  if (currentSection === totalSections - 1) {
+    btnNext.textContent = '📤 ส่งแบบสอบถาม';
+    btnNext.className = 'btn btn-submit';
+  } else {
+    btnNext.textContent = 'ถัดไป →';
+    btnNext.className = 'btn btn-next';
+  }
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function goSection(n) {
+  currentSection = n;
+  updateUI();
+}
+
+function nextSection() {
+  if (currentSection === 0) {
+    if (!document.getElementById('consent-cb').checked) {
+      alert('กรุณายืนยันความยินยอมก่อนดำเนินการต่อ');
+      return;
+    }
+  }
+  if (currentSection < totalSections - 1) {
+    currentSection++;
+    updateUI();
+  } else {
+    submitForm();
+  }
+}
+
+function prevSection() {
+  if (currentSection > 0) { currentSection--; updateUI(); }
+}
+
+function updateConsent() {
+  // visual feedback only
+}
+
+// ── Google Apps Script endpoint ────────────────────────────────────────────────
+// วาง URL ของ Web App ที่นี่ หลัง Deploy Apps Script แล้ว
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbze1wYiY1ME6IALx0ED0Zd_jkBJa2rfmSL0uOwCmpna4IbFEtMmEYbQ5sxgQAoL7zMstg/exec';
+
+function collectAllAnswers() {
+  const data = {};
+  const now = new Date();
+  data['Timestamp']      = now.toISOString();
+  data['RespID']         = 'R' + now.getTime().toString().slice(-6);
+  data['Province']       = document.getElementById('sel-province')?.value || '';
+  data['SchoolName']     = document.getElementById('sel-school')?.value   || '';
+
+  // Demographic radio/checkbox
+  ['gender','age','edu','role','exp','ai-exp','ai-train','ai-freq','school-size'].forEach(name => {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    data[name] = el ? el.value : '';
+  });
+
+  // Multi-select checkboxes
+  ['level','tool'].forEach(name => {
+    const checked = [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(e => e.value);
+    data[name] = checked.join(', ');
+  });
+
+  // Likert (radio per question code)
+  const codes = [
+    ...Array.from({length:9},(_,i)=>`APC${i+1}`),
+    ...Array.from({length:9},(_,i)=>`PDFC${i+1}`),
+    ...Array.from({length:9},(_,i)=>`AEA${i+1}`),
+    ...Array.from({length:9},(_,i)=>`AIAT${i+1}`),
+    ...Array.from({length:15},(_,i)=>`AIU${i+1}`),
+  ];
+  codes.forEach(code => {
+    const el = document.querySelector(`input[name="${code}"]:checked`);
+    data[code] = el ? el.value : '';
+  });
+
+  // Free text
+  const ta = document.querySelector('textarea');
+  data['Suggestion'] = ta ? ta.value : '';
+
+  return data;
+}
+
+function showStatus(msg, color) {
+  let el = document.getElementById('submit-status');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'submit-status';
+    el.style.cssText = 'text-align:center;font-size:14px;padding:12px;border-radius:6px;margin-top:12px;';
+    document.getElementById('nav-btns').after(el);
+  }
+  el.textContent = msg;
+  el.style.background = color === 'ok' ? '#e8f5e9' : color === 'err' ? '#ffebee' : '#fff9c4';
+  el.style.color       = color === 'ok' ? '#2e7d32' : color === 'err' ? '#c62828' : '#f57f17';
+}
+
+async function submitForm() {
+  const btnNext = document.getElementById('btn-next');
+  btnNext.disabled = true;
+  btnNext.textContent = '⏳ กำลังส่ง...';
+  showStatus('กำลังส่งข้อมูล กรุณารอสักครู่...', 'wait');
+
+  const payload = collectAllAnswers();
+
+  try {
+    // ── ส่งข้อมูลไปยัง Google Apps Script ──────────────────────────────────
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode:   'no-cors',        // Apps Script ต้องการ no-cors
+      headers: { 'Content-Type': 'application/json' },
+      body:   JSON.stringify(payload),
+    });
+
+    // no-cors → resp.type === 'opaque' → ถือว่าสำเร็จเสมอหาก fetch ไม่ throw
+    document.getElementById('nav-btns').style.display = 'none';
+    document.querySelectorAll('.section-content').forEach(s => s.style.display = 'none');
+    document.getElementById('thank-you').style.display = 'block';
+    document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('progress-pct').textContent = '100%';
+    document.getElementById('progress-text').textContent = 'ส่งเรียบร้อยแล้ว';
+
+  } catch (err) {
+    // Network error (ไม่มีอินเทอร์เน็ต หรือ URL ผิด)
+    btnNext.disabled = false;
+    btnNext.textContent = '📤 ส่งแบบสอบถาม';
+    showStatus('❌ ส่งไม่สำเร็จ: ' + err.message + ' — กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต แล้วลองใหม่', 'err');
+  }
+}
+
+// ── Keyboard shortcut ─────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.altKey && e.key === 'ArrowRight') nextSection();
+  if (e.altKey && e.key === 'ArrowLeft')  prevSection();
+});
+</script>
+</body>
+</html>
